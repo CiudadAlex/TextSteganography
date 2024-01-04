@@ -1,4 +1,5 @@
 from transformers import pipeline
+from random import randint
 
 MASK_WORD = "<mask>"
 
@@ -11,6 +12,18 @@ class TextSteganography:
         self.final_padding = 30
         self.min_separation = 7
 
+    def hide_message_and_generate_list_positions(self, message_to_hide, subject):
+
+        list_word = message_to_hide.split()
+        list_separations = []
+
+        for word in list_word:
+            list_separations.append(randint(self.min_separation, 3 * self.min_separation))
+
+        text = self.hide_message(list_word, list_separations, subject)
+        list_positions = self.get_list_positions(list_separations)
+        return text, list_positions
+
     def hide_message(self, list_word, list_separations, subject):
 
         if len(list_word) != len(list_separations):
@@ -19,21 +32,26 @@ class TextSteganography:
         if min(list_separations) < self.min_separation:
             raise Exception("Min separation is below allowed: " + str(min(list_separations)) + " < " + str(self.min_separation))
 
-        num_words = max(list_separations) + self.final_padding
+        min_num_words = max(list_separations) + self.final_padding
+        text_initial = self.generate_initial_text(subject, min_num_words)
+
+        list_positions = self.get_list_positions(list_separations)
+        text = self.change_list_of_words_in_positions_and_surroundings(text_initial, list_word, list_positions)
+
+        return text
+
+    def generate_initial_text(self, subject, min_num_words):
 
         text = subject
         words = text.split()
 
-        while len(words) < num_words:
+        while len(words) < min_num_words:
             output_text_generator = self.text_generator(text)
 
             text = output_text_generator[0]['generated_text']
             words = text.split()
 
         text = ' '.join(words)
-
-        list_positions = self.get_list_positions(list_separations)
-        text = self.change_list_of_words_in_positions_and_surroundings(text, list_word, list_positions)
 
         return text
 
