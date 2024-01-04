@@ -36,7 +36,11 @@ class TextSteganography:
         text_initial = self.generate_initial_text(subject, min_num_words)
 
         list_positions = self.get_list_positions(list_separations)
-        text = self.change_list_of_words_in_positions_and_surroundings(text_initial, list_word, list_positions)
+        text = text_initial
+
+        for i in range(10):
+            text = self.change_list_of_words_in_positions_and_surroundings(text, list_word, list_positions)
+            print("Iter " + str(i))
 
         return text
 
