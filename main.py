@@ -28,9 +28,9 @@ print("___________________________________________")
 print(output)
 print("___________________________________________")
 
+list_positions = textSteganography.get_list_positions(list_separations)
 words = output.split()
 index = 0
 
-for separation in list_separations:
-    index = index + separation
+for index in list_positions:
     print(words[index])

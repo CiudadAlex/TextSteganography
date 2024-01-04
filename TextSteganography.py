@@ -30,9 +30,31 @@ class TextSteganography:
             text = output_text_generator[0]['generated_text']
             words = text.split()
 
-        output = self.mask_filler("Paris es la " + MASK_WORD + " de Francia.")
+        text = ' '.join(words)
+
+        list_positions = self.get_list_positions(list_separations)
+        text = self.change_words_in_positions_and_surroundings(text, list_positions)
+
         return text
 
+    def change_words_in_positions_and_surroundings(self, text, list_positions):
+
+        # output = self.mask_filler(text)
+
+        # FIXME finish self.min_separation
+
+        return text
+
+    def get_list_positions(self, list_separations):
+
+        list_positions = []
+        index = 0
+
+        for separation in list_separations:
+            index = index + separation
+            list_positions.append(index)
+
+        return list_positions
 
 '''
 
