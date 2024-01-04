@@ -33,17 +33,33 @@ class TextSteganography:
         text = ' '.join(words)
 
         list_positions = self.get_list_positions(list_separations)
-        text = self.change_words_in_positions_and_surroundings(text, list_positions)
+        text = self.change_words_in_positions_and_surroundings(text, list_word, list_positions)
 
         return text
 
-    def change_words_in_positions_and_surroundings(self, text, list_positions):
+    def change_words_in_positions_and_surroundings(self, text, list_word, list_positions):
+
+        for index in range(len(list_word)):
+            word = list_word[index]
+            position = list_positions[index]
+
+            text = self.change_word_in_position(text, word, position)
 
         # output = self.mask_filler(text)
-
         # FIXME finish self.min_separation
 
         return text
+
+    def change_word_in_position(self, text, word, position):
+
+        list_text_words = text.split()
+
+        list_text_words[position] = word
+
+        new_text = ' '.join(list_text_words)
+
+        return new_text
+
 
     def get_list_positions(self, list_separations):
 
