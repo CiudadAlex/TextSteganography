@@ -11,7 +11,8 @@ class TextSteganography:
         self.text_generator = pipeline("text-generation", model="gpt2", max_new_tokens=200)
         self.final_padding = 30
         self.min_separation = 7
-        self.refinement_iterations = 10
+        self.refinement_iterations = 4
+        self.max_allowed_word_frequency = 10
 
     def hide_message_and_generate_list_positions(self, message_to_hide, subject):
 
@@ -33,12 +34,23 @@ class TextSteganography:
         if min(list_separations) < self.min_separation:
             raise Exception("Min separation is below allowed: " + str(min(list_separations)) + " < " + str(self.min_separation))
 
+        max_word_frequency = 2 * self.max_allowed_word_frequency
+        text = None
+
+        while max_word_frequency > self.max_allowed_word_frequency:
+
+            text = self.inner_hide_message(list_word, list_separations, subject)
+
+            # Text too repetitive are not allowed
+            max_word_frequency, max_word = self.get_max_word_frequency(text)
+            print(max_word + " = " + str(max_word_frequency))
+
+        return text
+
+    def inner_hide_message(self, list_word, list_separations, subject):
+
         min_num_words = sum(list_separations) + self.final_padding
         text_initial = self.generate_initial_text(subject, min_num_words)
-
-        print("___________________________________________")
-        print(text_initial)
-        print("___________________________________________")
 
         list_positions = self.get_list_positions(list_separations)
         text = text_initial
@@ -112,6 +124,29 @@ class TextSteganography:
         text_mod = ' '.join(list_text_words)
 
         return text_mod
+
+    def get_max_word_frequency(self, text):
+
+        list_word = text.split()
+        map_low_word_frequency = {}
+
+        for word in list_word:
+            low_word = word.lower()
+
+            if low_word not in map_low_word_frequency:
+                map_low_word_frequency[low_word] = 0
+
+            map_low_word_frequency[low_word] = map_low_word_frequency[low_word] + 1
+
+        max_count = 0
+        max_word = None
+
+        for low_word, count in map_low_word_frequency.items():
+            if count > max_count:
+                max_count = count
+                max_word = low_word
+
+        return max_count, max_word
 
 
     def get_list_positions(self, list_separations):
