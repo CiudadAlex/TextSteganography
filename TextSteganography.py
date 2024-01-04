@@ -11,6 +11,7 @@ class TextSteganography:
         self.text_generator = pipeline("text-generation", model="gpt2", max_new_tokens=200)
         self.final_padding = 30
         self.min_separation = 7
+        self.refinement_iterations = 10
 
     def hide_message_and_generate_list_positions(self, message_to_hide, subject):
 
@@ -32,13 +33,17 @@ class TextSteganography:
         if min(list_separations) < self.min_separation:
             raise Exception("Min separation is below allowed: " + str(min(list_separations)) + " < " + str(self.min_separation))
 
-        min_num_words = max(list_separations) + self.final_padding
+        min_num_words = sum(list_separations) + self.final_padding
         text_initial = self.generate_initial_text(subject, min_num_words)
+
+        print("___________________________________________")
+        print(text_initial)
+        print("___________________________________________")
 
         list_positions = self.get_list_positions(list_separations)
         text = text_initial
 
-        for i in range(10):
+        for i in range(self.refinement_iterations):
             text = self.change_list_of_words_in_positions_and_surroundings(text, list_word, list_positions)
             print("Iter " + str(i))
 
