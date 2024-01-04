@@ -9,13 +9,17 @@ class TextSteganography:
         self.mask_filler = pipeline("fill-mask", model="distilroberta-base")
         self.text_generator = pipeline("text-generation", model="gpt2", max_new_tokens=200)
         self.final_padding = 30
+        self.min_separation = 7
 
-    def hide_message(self, list_word, list_position, subject):
+    def hide_message(self, list_word, list_separations, subject):
 
-        if len(list_word) != len(list_position):
-            raise Exception()
+        if len(list_word) != len(list_separations):
+            raise Exception("list_word and list_separations have different sizes: " + str(len(list_word)) + " != " + str(len(list_separations)))
 
-        num_words = max(list_position) + self.final_padding
+        if min(list_separations) < self.min_separation:
+            raise Exception("Min separation is below allowed: " + str(min(list_separations)) + " < " + str(self.min_separation))
+
+        num_words = max(list_separations) + self.final_padding
 
         text = subject
         words = text.split()

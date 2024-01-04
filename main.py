@@ -12,23 +12,25 @@ list_word = [
     'planes'
 ]
 
-list_position = [
-    4,
-    25,
-    32,
-    55,
-    62,
-    78,
-    92
+list_separations = [
+    7,
+    8,
+    12,
+    9,
+    14,
+    17,
+    7
 ]
-subject = "The number 42"
-output = textSteganography.hide_message(list_word, list_position, subject)
+subject = "The number 42 "
+output = textSteganography.hide_message(list_word, list_separations, subject)
 
 print("___________________________________________")
 print(output)
 print("___________________________________________")
 
 words = output.split()
+index = 0
 
-for index in list_position:
+for separation in list_separations:
+    index = index + separation
     print(words[index])
