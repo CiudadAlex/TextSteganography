@@ -33,22 +33,48 @@ class TextSteganography:
         text = ' '.join(words)
 
         list_positions = self.get_list_positions(list_separations)
-        text = self.change_words_in_positions_and_surroundings(text, list_word, list_positions)
+        text = self.change_list_of_words_in_positions_and_surroundings(text, list_word, list_positions)
 
         return text
 
-    def change_words_in_positions_and_surroundings(self, text, list_word, list_positions):
+    def change_list_of_words_in_positions_and_surroundings(self, text, list_word, list_positions):
+
+        text_mod = text
 
         for index in range(len(list_word)):
             word = list_word[index]
             position = list_positions[index]
 
-            text = self.change_word_in_position(text, word, position)
+            text_mod = self.change_word_in_position_and_surroundings(text_mod, word, position)
 
-        # output = self.mask_filler(text)
-        # FIXME finish self.min_separation
+        return text_mod
 
-        return text
+    def change_word_in_position_and_surroundings(self, text, word, position):
+
+        text_mod = self.change_word_in_position(text, word, position)
+
+        for index in range(1, self.min_separation - 1):
+            text_mod = self.generate_word_in_position(text_mod, position - index)
+            text_mod = self.generate_word_in_position(text_mod, position + index)
+
+        return text_mod
+
+    '''
+    output of the maskFiller:
+    [
+        {'score': 0.6790179014205933, 'token':   812, 'token_str':    ' capital', 'sequence':    'Paris is the capital of France.'},
+        {'score': 0.0517798401415348, 'token': 32357, 'token_str': ' birthplace', 'sequence': 'Paris is the birthplace of France.'},
+        {'score': 0.0382528081536293, 'token':  1144, 'token_str':      ' heart', 'sequence':      'Paris is the heart of France.'}, 
+        {'score': 0.0243489351123571, 'token': 29778, 'token_str':       ' envy', 'sequence':       'Paris is the envy of France.'}, 
+        {'score': 0.0228512510657310, 'token':  1867, 'token_str':    ' Capital', 'sequence':    'Paris is the Capital of France.'}
+    ]
+    '''
+    def generate_word_in_position(self, text, position):
+
+        text_mod = self.change_word_in_position(text, MASK_WORD, position)
+        output = self.mask_filler(text_mod)
+        generated_token = output[0]['token_str'].strip().split()[0]
+        return text_mod.replace(MASK_WORD, generated_token)
 
     def change_word_in_position(self, text, word, position):
 
@@ -56,9 +82,9 @@ class TextSteganography:
 
         list_text_words[position] = word
 
-        new_text = ' '.join(list_text_words)
+        text_mod = ' '.join(list_text_words)
 
-        return new_text
+        return text_mod
 
 
     def get_list_positions(self, list_separations):
@@ -72,15 +98,4 @@ class TextSteganography:
 
         return list_positions
 
-'''
 
-output of the maskFiller:
-
-[
-    {'score': 0.6790179014205933, 'token':   812, 'token_str':    ' capital', 'sequence':    'Paris is the capital of France.'},
-    {'score': 0.0517798401415348, 'token': 32357, 'token_str': ' birthplace', 'sequence': 'Paris is the birthplace of France.'},
-    {'score': 0.0382528081536293, 'token':  1144, 'token_str':      ' heart', 'sequence':      'Paris is the heart of France.'}, 
-    {'score': 0.0243489351123571, 'token': 29778, 'token_str':       ' envy', 'sequence':       'Paris is the envy of France.'}, 
-    {'score': 0.0228512510657310, 'token':  1867, 'token_str':    ' Capital', 'sequence':    'Paris is the Capital of France.'}
-]
-'''
